@@ -14,7 +14,7 @@ Calender.prototype = {
     document.body.appendChild($t.main);
     $t.main.style.width = "600px";
     $t.main.style.height = "600px";
-    $t.main.style.backgroundColor = "gray";
+    $t.main.style.backgroundColor = "dimgray";
     $t.main.style.margin = "50px auto";
     $t.main.style.borderRadius = "15px";
   },
@@ -104,7 +104,7 @@ Calender.prototype = {
     $t.main.appendChild(table);
     table.style.width = "100%";
 
-    // 创建一个名言标签
+    // 创建一个句子标签
     var p = document.createElement("p");
     $t.main.appendChild(p);
     p.innerHTML = getSentence();
@@ -140,9 +140,10 @@ Calender.prototype = {
         if (
           eachDate.getMonth() == now.getMonth() &&
           eachDate.getDate() === currentDay
-        )
-          td.style.backgroundColor = "aquamarine";
-
+        ) {
+          td.style.backgroundColor = "dimgray";
+          td.style.color = "white";
+        }
         // 判断当前月和推算出来的日期的月份是否一样，不一样则代表不是当前月的日期，则把日期灰色显示
         if (eachDate.getMonth() != $t.currentDate.getMonth()) {
           td.style.backgroundColor = "lightgray";
@@ -173,7 +174,7 @@ var sentences = [
   "我是一个有决心的人",
   "我的努力会得到回报",
   "我是一个自信的人",
-  "我可以控制自己的思维",
+  "我可以控制自己的情绪",
   "我是一个积极的思考者",
   "我相信自己的能力",
   "我每天都在成长",
@@ -183,7 +184,7 @@ var sentences = [
   "我是一个有决心和毅力的人",
   "我每天都在积极地面对生活",
   "我能够克服任何困难",
-  "我是一个积极的变革者",
+  "我是一个积极向上的人",
   "我能够取得我想要的成就",
   "我的能力没有限制",
   "我是一个有自信心的人",
@@ -210,7 +211,35 @@ var sentences = [
   "我相信自己的能力可以改变命运",
   "我每天都在追求自己的梦想和目标",
   "我可以战胜任何困难和障碍",
-  "我有能力实现自己的梦想和目标"
+  "我有能力实现自己的梦想和目标",
+  "我相信自己，我有克服一切困难的能力",
+  "没有什么能阻止我前进",
+  "我终将成为我期待的样子",
+  "我的生活在我自己的掌控之中",
+  "我超级完美",
+  "我无条件爱自己，相信自己，支持自己",
+  "我聚焦自己，奇迹就会发生",
+  "我相信自己可以超越过去的限制",
+  "我用我所渴望的美善来看待自己",
+  "我的内心充满希望",
+  "我准备好了梦想成真",
+  "我比以前任何时候都健康",
+  "我有能力完成所有日常任务",
+  "我的自愈能力很强",
+  "我非常有安全感",
+  "幸福围绕着我",
+  "我有力量度过任何难关",
+  "我的潜力永无止境",
+  "我相信自己的可塑性",
+  "我吸入信心，呼出疑虑",
+  "我选择用爱的态度过好今天",
+  "我风华正茂，我的未来非常精彩",
+  "我永远都有能力对不想要的说不",
+  "我接纳所有的情绪，并爱着自己",
+  "我的内心平和是我最大的力量",
+  "我会将美丽的事物吸引到我的生活中",
+  "不必焦虑有人比你提前拥有",
+  "我就是此刻我需要成为的人",
 ];
 function getSentence() {
   var now = new Date();
@@ -226,7 +255,6 @@ function getSentence() {
 
 // 实例化一个Calender对象
 var calender = new Calender();
-
 // 定义方法：获取每月一号对应的星期数
 function getEveryDate(index) {
   // 获取一号对应的日期
@@ -243,4 +271,31 @@ function getEveryDate(index) {
   return eachDate;
 }
 
-calender.showInit();
+function triggerEventAtMidnight() {
+  var now = new Date();
+  var night = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+    0,
+    0,
+    0,
+    0
+  );
+  var msToMidnight = night.getTime() - now.getTime() + 100;
+
+  setTimeout(function () {
+    // 重新设置定时器，为下一个午夜准备
+    triggerEventAtMidnight();
+  }, msToMidnight);
+
+  // 跨天重新设置当前年月
+  calender.currentDate = now;
+  // 清空页面
+  document.body.innerHTML = "";
+  // 重新布局
+  calender.showInit();
+}
+
+// 启动定时器
+triggerEventAtMidnight();
