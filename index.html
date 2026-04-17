@@ -25,46 +25,73 @@
 				justify-content: center;
 				align-items: center;
 				text-align: center;
-				padding: 20px;
+				padding: 15px;
 			}
 
 			.time {
-				font-size: 72px;
+				font-size: 64px;
 				font-weight: bold;
-				letter-spacing: 4px;
-				margin-bottom: 20px;
+				letter-spacing: 2px;
+				margin-bottom: 10px;
 			}
 
 			.date {
-				font-size: 36px;
-				margin-bottom: 10px;
+				font-size: 32px;
+				margin-bottom: 5px;
 			}
 
 			.weekday {
-				font-size: 28px;
+				font-size: 24px;
 				color: #333;
+				margin-bottom: 15px;
 			}
 
 			.calendar {
-				margin-top: 30px;
-				font-size: 24px;
-				line-height: 1.8;
+				margin-top: 10px;
 			}
 
-			.month {
-				font-size: 32px;
-				margin-bottom: 10px;
-			}
-
-			.year {
+			.month-year {
 				font-size: 28px;
-				color: #666;
+				margin-bottom: 15px;
+			}
+
+			.month-calendar {
+				border-collapse: collapse;
+				margin: 0 auto;
+			}
+
+			.month-calendar th {
+				font-size: 18px;
+				padding: 5px 8px;
+				border: 1px solid #333;
+			}
+
+			.month-calendar td {
+				font-size: 20px;
+				padding: 8px 10px;
+				border: 1px solid #333;
+				width: 44px;
+			}
+
+			.month-calendar .week-header {
+				font-weight: bold;
+				background-color: #f0f0f0;
+			}
+
+			.month-calendar .other-month {
+				color: #999;
+			}
+
+			.month-calendar .today {
+				background-color: #333;
+				color: white;
+				font-weight: bold;
 			}
 
 			.footer {
 				position: fixed;
-				bottom: 20px;
-				font-size: 18px;
+				bottom: 15px;
+				font-size: 16px;
 				color: #999;
 			}
 		</style>
@@ -75,8 +102,22 @@
 			<div class="date" id="date">1月1日</div>
 			<div class="weekday" id="weekday">星期一</div>
 			<div class="calendar">
-				<div class="month" id="month">一月</div>
-				<div class="year" id="year">2024</div>
+				<div class="month-year" id="monthYear">2024年1月</div>
+				<table class="month-calendar" id="monthCalendar">
+					<thead>
+						<tr class="week-header">
+							<th>日</th>
+							<th>一</th>
+							<th>二</th>
+							<th>三</th>
+							<th>四</th>
+							<th>五</th>
+							<th>六</th>
+						</tr>
+					</thead>
+					<tbody id="calendarBody">
+					</tbody>
+				</table>
 			</div>
 			<div class="footer">每分钟自动刷新</div>
 		</div>
@@ -84,6 +125,7 @@
 		<script>
 			const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 			const months = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+			const monthNames = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
 
 			function updateTime() {
 				const now = new Date();
@@ -101,11 +143,71 @@
 				// 更新星期
 				document.getElementById('weekday').textContent = weekdays[now.getDay()];
 				
-				// 更新月份
-				document.getElementById('month').textContent = months[now.getMonth()];
+				// 更新月份年份
+				document.getElementById('monthYear').textContent = now.getFullYear() + '年' + monthNames[now.getMonth()];
 				
-				// 更新年份
-				document.getElementById('year').textContent = now.getFullYear();
+				// 更新日历
+				updateCalendar();
+			}
+
+			function updateCalendar() {
+				const now = new Date();
+				const year = now.getFullYear();
+				const month = now.getMonth();
+				const today = now.getDate();
+
+				// 当月第一天
+				const firstDay = new Date(year, month, 1);
+				// 当月最后一天
+				const lastDay = new Date(year, month + 1, 0);
+				// 第一天是星期几
+				const firstDayOfWeek = firstDay.getDay();
+				// 获取上个月的最后几天
+				const prevMonthLastDay = new Date(year, month, 0).getDate();
+
+				const tbody = document.getElementById('calendarBody');
+				tbody.innerHTML = '';
+
+				let dayCount = 1;
+				let nextMonthDay = 1;
+				
+				// 生成6行日历
+				for (let week = 0; week < 6; week++) {
+					const tr = document.createElement('tr');
+					
+					for (let day = 0; day < 7; day++) {
+						const td = document.createElement('td');
+						const cellIndex = week * 7 + day;
+						
+						if (cellIndex < firstDayOfWeek) {
+							// 上个月的日期
+							const prevDay = prevMonthLastDay - firstDayOfWeek + cellIndex + 1;
+							td.textContent = prevDay;
+							td.className = 'other-month';
+						} else if (dayCount <= lastDay.getDate()) {
+							// 当月的日期
+							td.textContent = dayCount;
+							if (dayCount === today) {
+								td.className = 'today';
+							}
+							dayCount++;
+						} else {
+							// 下个月的日期
+							td.textContent = nextMonthDay;
+							td.className = 'other-month';
+							nextMonthDay++;
+						}
+						
+						tr.appendChild(td);
+					}
+					
+					tbody.appendChild(tr);
+					
+					// 如果当月日期已经填完，且剩余行都是下个月日期，可以停止
+					if (dayCount > lastDay.getDate() && week >= 4) {
+						break;
+					}
+				}
 			}
 
 			// 每分钟刷新一次（精确到每分钟的第一次调用）
