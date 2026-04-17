@@ -2,27 +2,128 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>Calendar</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>日历</title>
 		<style type="text/css">
 			* {
 				box-sizing: border-box;
-			}
-
-			html {
-				height: 100%;
-			}
-
-			body {
 				margin: 0;
+				padding: 0;
+			}
+
+			html, body {
 				height: 100%;
 				background-color: white;
+				color: black;
+				font-family: "Times New Roman", Georgia, serif;
 			}
-			span{
-				cursor: pointer;
+
+			.container {
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				text-align: center;
+				padding: 20px;
+			}
+
+			.time {
+				font-size: 72px;
+				font-weight: bold;
+				letter-spacing: 4px;
+				margin-bottom: 20px;
+			}
+
+			.date {
+				font-size: 36px;
+				margin-bottom: 10px;
+			}
+
+			.weekday {
+				font-size: 28px;
+				color: #333;
+			}
+
+			.calendar {
+				margin-top: 30px;
+				font-size: 24px;
+				line-height: 1.8;
+			}
+
+			.month {
+				font-size: 32px;
+				margin-bottom: 10px;
+			}
+
+			.year {
+				font-size: 28px;
+				color: #666;
+			}
+
+			.footer {
+				position: fixed;
+				bottom: 20px;
+				font-size: 18px;
+				color: #999;
 			}
 		</style>
 	</head>
 	<body>
-		<script src="js/index.js"></script>
+		<div class="container">
+			<div class="time" id="time">00:00</div>
+			<div class="date" id="date">1月1日</div>
+			<div class="weekday" id="weekday">星期一</div>
+			<div class="calendar">
+				<div class="month" id="month">一月</div>
+				<div class="year" id="year">2024</div>
+			</div>
+			<div class="footer">每分钟自动刷新</div>
+		</div>
+
+		<script>
+			const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+			const months = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+
+			function updateTime() {
+				const now = new Date();
+				
+				// 更新时间 (HH:MM 格式)
+				const hours = String(now.getHours()).padStart(2, '0');
+				const minutes = String(now.getMinutes()).padStart(2, '0');
+				document.getElementById('time').textContent = hours + ':' + minutes;
+				
+				// 更新日期 (M月D日格式)
+				const month = now.getMonth() + 1;
+				const day = now.getDate();
+				document.getElementById('date').textContent = month + '月' + day + '日';
+				
+				// 更新星期
+				document.getElementById('weekday').textContent = weekdays[now.getDay()];
+				
+				// 更新月份
+				document.getElementById('month').textContent = months[now.getMonth()];
+				
+				// 更新年份
+				document.getElementById('year').textContent = now.getFullYear();
+			}
+
+			// 每分钟刷新一次（精确到每分钟的第一次调用）
+			function scheduleNextUpdate() {
+				const now = new Date();
+				const seconds = now.getSeconds();
+				const ms = now.getMilliseconds();
+				// 等到下一分钟开始时更新
+				const delay = (60 - seconds) * 1000 - ms;
+				setTimeout(() => {
+					updateTime();
+					scheduleNextUpdate();
+				}, delay);
+			}
+
+			// 初始化
+			updateTime();
+			scheduleNextUpdate();
+		</script>
 	</body>
 </html>
